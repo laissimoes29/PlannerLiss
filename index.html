@@ -1140,6 +1140,7 @@ function delEv(i){if(!confirm('Excluir?'))return;const e=ls.get('eventos_lais')|
 const TK='tasks_'+new Date().toDateString();
 function addTask(){const t=document.getElementById('tinp').value.trim();if(!t)return;const c=document.getElementById('tcat').value;const a=ls.get(TK)||[];a.push({t,c,done:false});ls.set(TK,a);document.getElementById('tinp').value='';renderTasks();}
 function renderTasks(){
+  if(!document.getElementById('task-list'))return;
   const a=ls.get(TK)||[];
   document.getElementById('task-list').innerHTML=a.length?a.map((t,i)=>`<div class="ti">
     <div class="tck ${t.done?'done':''}" onclick="tgTask(${i})"></div>
@@ -1166,6 +1167,7 @@ const defaultHabs=[
 ];
 function addHab(){const n=document.getElementById('hinp').value.trim();if(!n)return;const em=document.getElementById('hem').value||'✅';const a=ls.get('habs')||defaultHabs;a.push({name:n,em,days:[false,false,false,false,false,false,false]});ls.set('habs',a);document.getElementById('hinp').value='';document.getElementById('hem').value='';renderHabitos();}
 function renderHabitos(){
+  if(!document.getElementById('hab-list'))return;
   const a=ls.get('habs')||defaultHabs;
   const days=['D','S','T','Q','Q','S','S'];
   document.getElementById('hab-list').innerHTML=a.map((h,i)=>`<div class="hi">
@@ -1226,6 +1228,7 @@ function delMeal(i){const a=ls.get('meals')||[];a.splice(i,1);ls.set('meals',a);
 // ═══ ESTUDOS ═══
 function eFase(el,id){document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));el.classList.add('active');['ef-tjsc','ef-nutri','ef-creci'].forEach(i=>document.getElementById(i).style.display=i===id?'block':'none');}
 function renderEstudos(){
+  if(!document.getElementById('tjsc-list'))return;
   // TJSC countdown
   const now=new Date(),tjsc=new Date('2026-06-28');
   const dd=Math.max(0,Math.ceil((tjsc-now)/86400000));
@@ -1291,6 +1294,7 @@ function tgNutri(k){const d=ls.get('nutri_done')||{};d[k]=!d[k];ls.set('nutri_do
 function hTab(el,id){document.querySelectorAll('.htab').forEach(t=>t.classList.remove('active'));el.classList.add('active');['ht-treino','ht-peso','ht-agua','ht-medico','ht-est'].forEach(i=>document.getElementById(i).style.display=i===id?'block':'none');if(id==='ht-agua')renderAgua();if(id==='ht-peso')renderPeso();if(id==='ht-medico')renderMedicos();if(id==='ht-est')renderEst();}
 function saveTreino(){const at=document.getElementById('tr-at').value.trim();if(!at)return;const a=ls.get('treinos_all')||[];a.push({at,data:document.getElementById('tr-dt').value,du:document.getElementById('tr-du').value});ls.set('treinos_all',a);closeM('m-treino');['tr-at','tr-du'].forEach(id=>document.getElementById(id).value='');renderTreinos();}
 function renderTreinos(){
+  if(!document.getElementById('treino-list'))return;
   const now=new Date(),sw=new Date(now);sw.setDate(now.getDate()-now.getDay());
   const all=ls.get('treinos_all')||[],week=all.filter(t=>new Date(t.data+'T12:00')>=sw);
   const pct=Math.min(100,week.length/5*100);
@@ -1307,10 +1311,12 @@ function renderAgua(){const k='agua_'+new Date().toDateString(),c=ls.get(k)||0;d
 function tgCup(i){const k='agua_'+new Date().toDateString(),c=ls.get(k)||0;ls.set(k,i<c?i:i+1);renderAgua();}
 function resetAgua(){ls.set('agua_'+new Date().toDateString(),0);renderAgua();}
 function saveMed(){const t=document.getElementById('md-tp').value.trim();if(!t)return;const a=ls.get('medicos')||[];a.push({t,dt:document.getElementById('md-dt').value,st:document.getElementById('md-st').value,ob:document.getElementById('md-ob').value});ls.set('medicos',a);closeM('m-med');['md-tp','md-ob'].forEach(id=>document.getElementById(id).value='');renderMedicos();}
-function renderMedicos(){const a=ls.get('medicos')||[];const sl={agendar:'⏳ Agendar',agendado:'📅 Agendado',feito:'✅ Feito'};const sc={agendar:'var(--saude)',agendado:'var(--gold)',feito:'var(--corretora)'};document.getElementById('med-list').innerHTML=a.length?a.map((m,i)=>`<div class="med-item"><div><div style="font-size:.83rem;font-weight:500;">🏥 ${m.t}</div><div style="font-size:.7rem;color:var(--text3);">${m.dt?new Date(m.dt+'T12:00').toLocaleDateString('pt-BR'):''} ${m.ob?'· '+m.ob:''}</div></div><div style="display:flex;align-items:center;gap:7px;"><span style="font-size:.69rem;font-weight:700;color:${sc[m.st]}">${sl[m.st]}</span><button class="med-del" onclick="delMed(${i})">✕</button></div></div>`).join(''):'<div style="color:var(--text3);font-size:.81rem;">Nenhuma consulta cadastrada</div>';}
+function renderMedicos(){
+  if(!document.getElementById('med-list'))return;const a=ls.get('medicos')||[];const sl={agendar:'⏳ Agendar',agendado:'📅 Agendado',feito:'✅ Feito'};const sc={agendar:'var(--saude)',agendado:'var(--gold)',feito:'var(--corretora)'};document.getElementById('med-list').innerHTML=a.length?a.map((m,i)=>`<div class="med-item"><div><div style="font-size:.83rem;font-weight:500;">🏥 ${m.t}</div><div style="font-size:.7rem;color:var(--text3);">${m.dt?new Date(m.dt+'T12:00').toLocaleDateString('pt-BR'):''} ${m.ob?'· '+m.ob:''}</div></div><div style="display:flex;align-items:center;gap:7px;"><span style="font-size:.69rem;font-weight:700;color:${sc[m.st]}">${sl[m.st]}</span><button class="med-del" onclick="delMed(${i})">✕</button></div></div>`).join(''):'<div style="color:var(--text3);font-size:.81rem;">Nenhuma consulta cadastrada</div>';}
 function delMed(i){const a=ls.get('medicos')||[];a.splice(i,1);ls.set('medicos',a);renderMedicos();}
 function saveEst(){const t=document.getElementById('et-tp').value;const a=ls.get('estetica')||[];a.push({t,dt:document.getElementById('et-dt').value,ob:document.getElementById('et-ob').value});ls.set('estetica',a);closeM('m-est');document.getElementById('et-ob').value='';renderEst();}
-function renderEst(){const a=ls.get('estetica')||[];document.getElementById('est-list').innerHTML=a.length?a.map((e,i)=>`<div class="med-item"><div><div style="font-size:.83rem;font-weight:500;">${e.t}</div><div style="font-size:.7rem;color:var(--text3);">${e.dt?new Date(e.dt+'T12:00').toLocaleDateString('pt-BR'):''} ${e.ob?'· '+e.ob:''}</div></div><button class="med-del" onclick="delEst(${i})">✕</button></div>`).join(''):'<div style="color:var(--text3);font-size:.81rem;">Nenhum lembrete</div>';}
+function renderEst(){
+  if(!document.getElementById('est-list'))return;const a=ls.get('estetica')||[];document.getElementById('est-list').innerHTML=a.length?a.map((e,i)=>`<div class="med-item"><div><div style="font-size:.83rem;font-weight:500;">${e.t}</div><div style="font-size:.7rem;color:var(--text3);">${e.dt?new Date(e.dt+'T12:00').toLocaleDateString('pt-BR'):''} ${e.ob?'· '+e.ob:''}</div></div><button class="med-del" onclick="delEst(${i})">✕</button></div>`).join(''):'<div style="color:var(--text3);font-size:.81rem;">Nenhum lembrete</div>';}
 function delEst(i){const a=ls.get('estetica')||[];a.splice(i,1);ls.set('estetica',a);renderEst();}
 
 // ═══ CONTEÚDO ═══
@@ -1348,6 +1354,7 @@ function addPost(){const t=document.getElementById('pstinp').value.trim();if(!t)
 function tgPost(i){const a=ls.get('posts_lais')||[];const c=VS.indexOf(a[i].s);a[i].s=VS[(c+1)%VS.length];ls.set('posts_lais',a);renderConteudo();}
 function delPost(i){const a=ls.get('posts_lais')||[];a.splice(i,1);ls.set('posts_lais',a);renderConteudo();}
 function renderConteudo(){
+  if(!document.getElementById('cont-list'))return;
   const vl=ls.get('vlogs_lais')||defaultVlogs;
   document.getElementById('vlog-list').innerHTML=vl.map((v,i)=>`<div class="vi"><div class="vtit">${v.t}</div><span class="vs ${VC[v.s]}" onclick="tgVlog(${i})">${VL[v.s]}</span><button class="tdel" onclick="delVlog(${i})">✕</button></div>`).join('');
   const ps=ls.get('posts_lais')||[];
@@ -1362,6 +1369,7 @@ function addBlogIdea(){const t=document.getElementById('blog-inp').value.trim();
 function tgBlog(i){const a=ls.get('blog_ideas')||[];const c=VS.indexOf(a[i].s);a[i].s=VS[(c+1)%VS.length];ls.set('blog_ideas',a);renderBlogueira();}
 function delBlogIdea(i){const a=ls.get('blog_ideas')||[];a.splice(i,1);ls.set('blog_ideas',a);renderBlogueira();}
 function renderBlogueira(){
+  if(!document.getElementById('blog-list'))return;
   const m=ls.get('blog_metrics');
   const hist=ls.get('blog_hist')||[];
   const prev=hist.length?hist[hist.length-1]:null;
@@ -1381,6 +1389,7 @@ function addBill(){const n=document.getElementById('billinp').value.trim();if(!n
 function tgBill(i){const a=ls.get('bills')||[];a[i].paid=!a[i].paid;ls.set('bills',a);renderBills();}
 function delBill(i){const a=ls.get('bills')||[];a.splice(i,1);ls.set('bills',a);renderBills();}
 function renderBills(){
+  if(!document.getElementById('bill-list'))return;
   const a=ls.get('bills')||[];a.sort((x,y)=>x.d-y.d);
   document.getElementById('bill-list').innerHTML=a.length?a.map((b,i)=>`<div class="bi">
     <div class="bpd ${b.paid?'done':''}" onclick="tgBill(${i})"></div>
@@ -1412,6 +1421,7 @@ const DS=[
   {em:'🃏',tx:'Curso de Tarot'},{em:'📸',tx:'Digital creator'},{em:'💪',tx:'-10kg'},{em:'🌙',tx:'Magista reconhecida'},
 ];
 function renderMetas(){
+  if(!document.getElementById('metas-list'))return;
   const m=ls.get('metas_lais')||DM;
   document.getElementById('metas-list').innerHTML=m.map((mt,i)=>{const p=Math.min(100,Math.round(mt.at/mt.to*100));return`<div class="mc"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px;"><div style="font-weight:600;font-size:.87rem;">${mt.ti}</div><div style="display:flex;gap:7px;align-items:center;"><span style="font-size:.7rem;color:var(--text3);">${mt.pr}</span><span style="font-size:.79rem;font-weight:700;color:var(--gold);">${p}%</span><button onclick="editMeta(${i})" style="background:none;border:none;cursor:pointer;font-size:.8rem;color:var(--text3);">✏️</button><button onclick="delMeta(${i})" style="background:none;border:none;cursor:pointer;font-size:.8rem;color:var(--text3);">✕</button></div></div><div class="pbar"><div class="pfill" style="width:${p}%;background:linear-gradient(to right,var(--gold),var(--faculdade));"></div></div><div style="display:flex;justify-content:space-between;font-size:.69rem;color:var(--text3);margin-top:2px;"><span>${mt.at} ${mt.un}</span><span>${mt.to} ${mt.un}</span></div></div>`;}).join('');
   const s=ls.get('sonhos_lais')||DS;
@@ -1425,6 +1435,7 @@ function saveSonho(){const em=document.getElementById('so-em').value||'✨',tx=d
 
 // ═══ REVISÃO ═══
 function renderRevisao(){
+  if(!document.getElementById('rev-bem'))return;
   const now=new Date();
   document.getElementById('rev-week-header').innerHTML=`<div style="background:linear-gradient(135deg,rgba(201,161,82,.08),rgba(156,111,199,.08));border:1.5px solid rgba(201,161,82,.25);border-radius:12px;padding:13px 15px;"><div style="font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:4px;">Reunião Semanal Comigo Mesma</div><div style="font-size:.9rem;color:var(--text2);">Semana de ${getWeekRange(now)}</div></div>`;
   // load current
